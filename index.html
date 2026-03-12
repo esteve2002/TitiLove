@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Bootstrap CSS primero -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Fuente romántica -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <!--ICONOS BOOTSTR.-->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Tu CSS personalizado -->
+    <link href="style.css" rel="stylesheet">
+
+    <!--ICONOS PRINC-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<header>
+    <!--ICONO PARA VOLVER A LA HOME(INDEX)-->
+    <a href="index.html" class="p-5">
+        <i class="fa-solid fa-home p-3" style="font-size:2.5em;"></i>
+    </a>
+</header>
+<body>
+    <div class="container mt-2">
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-4 m-auto">
+                <h1 class="fw-bold text-success">TitiLove: Registro de finanzas</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-5">
+        <div class="row gap-2">
+            <div class="col p-3 bg-info rounded text-center fs-5">Zaira</div>
+            <div class="d-flex align-items-center justify-content-center p-1 border rounded shadow-sm bg-light" style="max-width: 70px; border-radius: 15px;">
+                <i class="bi bi-heart-fill text-danger fs-1 animate-heart"></i>
+            </div>
+            <div class="col p-3 bg-info rounded text-center fs-5">Esteve</div>
+        </div>
+    </div>
+
+
+    <!--CONTENEDOR DE PLANES CREADOS-->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-m-6 col-s-3">
+                <h2 class="text-center mb-3">Planes creados del rey y la reina</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped rounded table-bordered col-12" id="tablaPlanes">
+                    <thead class="table-dark">
+                    <tr class="text-center">
+                        <th class="text-center bg-info text-dark">Nombre</th>
+                        <th class="text-center bg-info text-dark">Necesario</th>
+                        <th class="text-center bg-info text-dark">Gasto Máximo</th>
+                        <th class="text-center bg-info text-dark">Fecha</th>
+                        <th class="text-center bg-info text-dark">Presupuesto del Plan</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-center">    
+                    </tbody>
+                </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="container align-items-center justify-content-center">
+        <div class="row">
+            <div class="col-12 p-2 text-center">
+                <button id="btAbrirModalCrearPlan" class="btn btn-info">Crear nuevo plan</button>
+            </div>
+            <div class="col-12 p-2 text-center">
+                <button id="btAbrirModalEliminarPlan" onclick="eliminarPlanesSeleccionados()" class="btn btn-info">Eliminar Planes Seleccionados</button>
+            </div>
+        </div>
+    </div>
+
+    <dialog id="modalForm">
+        <form id="formPlan" method="dialog" class="rounded p-5">
+            <h3>Registro</h3>
+            <label>Nombre: <input type="text" name="NombrePlan" required></label><br><br>
+            <label>Dinero necesario: <input type="number" required name="DineroNecesario"></label><br><br>
+            <label>Fecha: <input type="date" required name="FechaPlan"></label><br><br>
+            <label>Presupuesto del Plan: <input type="number" required name="PresupuestoPlan"></label><br><br>
+            <label>Gasto Máximo: <input type="number" required name="GastoMaxPlan"></label><br><br>
+            
+            <button type="submit" id="CrearPlan">Enviar</button>
+            <button type="button" id="cerrarForm">Cancelar</button>
+        </form>
+    </dialog>
+    
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

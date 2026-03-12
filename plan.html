@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan</title>
+
+        <!-- Bootstrap CSS primero -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Fuente romántica -->
+        <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+        <!--ICONOS BOOTSTR.-->
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <!-- Tu CSS personalizado -->
+        <link href="style.css" rel="stylesheet">
+
+        <!--ICONOS PRINC-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<header>
+    <!--ICONO PARA VOLVER A LA HOME(INDEX)-->
+    <a href="index.html" class="p-5">
+        <i class="fa-solid fa-home p-3" style="font-size:2.5em;"></i>
+    </a>
+</header>
+<body>
+    <h1 class="text-center">BIENVENIDO A LA PAGINA DE PLANES</h1>
+    <div class="container" id="nombre_plan">
+        <h2 id="tituloPlan" class="text-center"></h2>
+    </div>
+
+    <!--COLUMNAS PARA AÑADIR TANTO AHORROS COMO GASTOS-->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <h3 class="text-center text-dark">Gastos:</h3>
+                 <table class="table table-striped rounded table-bordered" id="tablaGastosPorPlan">
+                    <thead class="table-dark">
+                    <tr class="text-center">
+                        <th class="text-center bg-info text-dark">Nombre</th>
+                        <th class="text-center bg-info text-dark">Tipo de Gasto</th>
+                        <th class="text-center bg-info text-dark">Importe</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-center" onclick="rowClickPlan()">
+                    <!-- Aquí se insertarán los planes dinámicamente -->
+                    </tbody>
+                </table>
+                <!--DIV PARA AÑADIR NUEVO GASTO-->
+
+                <div class="container align-items-center justify-content-center">
+                    <div class="row">
+                        <div class="col-12 p-2 text-center">
+                            <button id="btAbrirModalCrearGasto" class="btn btn-info">Crear nuevo gasto</button>
+                        </div>
+                    </div>
+                </div>
+
+                <dialog id="modalFormGasto">
+                    <form id="formGasto" method="dialog" class="rounded p-5">
+                        <h3>Registro</h3>
+                        <label>Nombre del Gasto: <input type="text" name="NombreGasto" required></label><br><br>
+                        <label>Tipo de Gasto: <input type="text" required name="TipoGasto"></label><br><br>
+                        <label>Gasto Numérico: <input type="number" required name="GastoNumerico"></label><br><br>
+                        
+                        <button type="submit" id="CrearGasto">Enviar</button>
+                        <button type="button" id="cerrarFormGasto">Cancelar</button>
+                    </form>
+                </dialog>
+            </div>
+            <div class="col-6">
+                <h3 class="text-center text-dark">Ahorros:</h3>
+                <table class="table table-striped rounded table-bordered" id="tablaAhorrosPorPlan">
+                    <thead class="table-dark">
+                        <tr class="text-center">
+                            <th class="text-center bg-info text-dark">Apunte</th>
+                            <th class="text-center bg-info text-dark">Dinero Ahorrado</th>
+                            <th class="text-center bg-info text-dark">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        </tbody>
+                </table>
+
+                <div class="container align-items-center justify-content-center">
+                    <div class="row">
+                        <div class="col-12 p-2 text-center">
+                            <button id="btAbrirModalCrearAhorro" class="btn btn-info">Registrar Ahorro</button>
+                        </div>
+                    </div>
+                </div>
+
+                <dialog id="modalFormAhorro">
+                    <form id="formAhorro" method="dialog" class="rounded p-5">
+                        <h3>Nuevo Ahorro</h3>
+                        <label>Apunte: <input type="text" name="Apunte" required placeholder="Ej: Sueldo extra"></label><br><br>
+                        <label>Dinero Ahorrado: <input type="number" step="0.01" required name="Dinero_ahorrado"></label><br><br>
+                        <label>Fecha de creación del Ahorro: <input type="date" step="0.01" required name="Fecha_creacion"></label><br><br>
+                        
+                        <button type="submit" id="CrearAhorro">Guardar</button>
+                        <button type="button" id="cerrarFormAhorro">Cancelar</button>
+                    </form>
+                </dialog>
+            </div>
+        </div>
+        <div class="container pt-5"></div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <button id="btAbrirInfoPlan" class="btn btn-success">Ver información del plan</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
