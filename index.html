@@ -1,45 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- Bootstrap CSS primero -->
+    <title>TitiLove - Finanzas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Fuente romántica -->
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
-
-  <!--ICONOS BOOTSTR.-->
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Tu CSS personalizado -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="style.css" rel="stylesheet">
-
-    <!--ICONOS PRINC-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<header>
-    <!--ICONO PARA VOLVER A LA HOME(INDEX)-->
-    <a href="index.html" class="p-5">
-        <i class="fa-solid fa-home p-3" style="font-size:2.5em;"></i>
-    </a>
-</header>
 <body>
-    <div class="container mt-2">
+    <header class="p-3">
+        <a href="index.html" class="text-decoration-none">
+            <i class="fa-solid fa-house text-dark" style="font-size:2em;"></i>
+        </a>
+    </header>
+
+    <div class="container mt-2 text-center">
         <div class="row">
-            <div class="col-12 col-md-6 col-lg-4 m-auto">
-                <h1 class="fw-bold text-success">TitiLove: Registro de finanzas</h1>
+            <div class="col-12">
+                <h1 class="fw-bold text-success h2">TitiLove: Registro de finanzas</h1>
             </div>
         </div>
     </div>
-    <div class="container mb-5">
-        <div class="row gap-2">
-            <div class="col p-3 bg-info rounded text-center fs-5">Zaira</div>
-            <div class="d-flex align-items-center justify-content-center p-1 border rounded shadow-sm bg-light" style="max-width: 70px; border-radius: 15px;">
-                <i class="bi bi-heart-fill text-danger fs-1 animate-heart"></i>
+
+    <div class="container my-4">
+        <div class="row g-2 align-items-center justify-content-center">
+            <div class="col-5 p-3 bg-info rounded text-center fw-bold text-white shadow-sm">Zaira</div>
+            <div class="col-2 d-flex justify-content-center">
+                <div class="p-2 border rounded-circle shadow-sm bg-light d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                    <i class="bi bi-heart-fill text-danger fs-3 animate-heart"></i>
+                </div>
             </div>
-            <div class="col p-3 bg-info rounded text-center fs-5">Esteve</div>
+            <div class="col-5 p-3 bg-info rounded text-center fw-bold text-white shadow-sm">Esteve</div>
         </div>
     </div>
 
@@ -48,53 +42,70 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-12 col-m-6 col-s-3">
-                <h2 class="text-center mb-3">Planes creados del rey y la reina</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped rounded table-bordered col-12" id="tablaPlanes">
-                    <thead class="table-dark">
-                    <tr class="text-center">
-                        <th class="text-center bg-info text-dark">Nombre</th>
-                        <th class="text-center bg-info text-dark">Necesario</th>
-                        <th class="text-center bg-info text-dark">Gasto Máximo</th>
-                        <th class="text-center bg-info text-dark">Fecha</th>
-                        <th class="text-center bg-info text-dark">Presupuesto del Plan</th>
-                    </tr>
-                    </thead>
-                    <tbody class="text-center">    
-                    </tbody>
-                </table>
+            <div class="col-12">
+                <h2 class="text-center mb-3 h4">Planes de el Rey y la Reina</h2>
+                <div class="table-responsive shadow-sm rounded">
+                    <table class="table table-striped table-bordered mb-0" id="tablaPlanes">
+                        <thead class="table-dark d-none d-md-table-header-group">
+                            <tr class="text-center bg-info">
+                                <th class="bg-info text-dark">Nombre</th>
+                                <th class="bg-info text-dark">Necesario</th>
+                                <th class="bg-info text-dark">Gasto Máximo</th>
+                                <th class="bg-info text-dark">Fecha</th>
+                                <th class="bg-info text-dark">Presupuesto</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center" id="cuerpoTabla">
+                            </tbody>
+                    </table>
                 </div>
-                
             </div>
         </div>
     </div>
 
-    <div class="container align-items-center justify-content-center">
-        <div class="row">
-            <div class="col-12 p-2 text-center">
-                <button id="btAbrirModalCrearPlan" class="btn btn-info">Crear nuevo plan</button>
+    <div class="container mt-4 mb-5">
+        <div class="row g-3 justify-content-center">
+            <div class="col-12 col-sm-6">
+                <button id="btAbrirModalCrearPlan" class="btn btn-info w-100 fw-bold shadow-sm">Crear nuevo plan</button>
             </div>
-            <div class="col-12 p-2 text-center">
-                <button id="btAbrirModalEliminarPlan" onclick="eliminarPlanesSeleccionados()" class="btn btn-info">Eliminar Planes Seleccionados</button>
+            <div class="col-12 col-sm-6">
+                <button id="btAbrirModalEliminarPlan" onclick="eliminarPlanesSeleccionados()" class="btn btn-outline-danger w-100 fw-bold shadow-sm">Eliminar Seleccionados</button>
             </div>
         </div>
     </div>
 
-    <dialog id="modalForm">
-        <form id="formPlan" method="dialog" class="rounded p-5">
-            <h3>Registro</h3>
-            <label>Nombre: <input type="text" name="NombrePlan" required></label><br><br>
-            <label>Dinero necesario: <input type="number" required name="DineroNecesario"></label><br><br>
-            <label>Fecha: <input type="date" required name="FechaPlan"></label><br><br>
-            <label>Presupuesto del Plan: <input type="number" required name="PresupuestoPlan"></label><br><br>
-            <label>Gasto Máximo: <input type="number" required name="GastoMaxPlan"></label><br><br>
+    <dialog id="modalForm" class="border-0 shadow-lg rounded-4 p-0">
+        <form id="formPlan" method="dialog" class="p-4 p-md-5">
+            <h3 class="text-center mb-4 text-info fw-bold">Nuevo Registro</h3>
+            <div class="mb-3">
+                <label class="form-label">Nombre del Plan</label>
+                <input type="text" class="form-control" name="NombrePlan" required>
+            </div>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label">Dinero necesario</label>
+                    <input type="number" class="form-control" name="DineroNecesario" required>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label">Presupuesto</label>
+                    <input type="number" class="form-control" name="PresupuestoPlan" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fecha</label>
+                <input type="date" class="form-control" name="FechaPlan" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Gasto Máximo</label>
+                <input type="number" class="form-control" name="GastoMaxPlan" required>
+            </div>
             
-            <button type="submit" id="CrearPlan">Enviar</button>
-            <button type="button" id="cerrarForm">Cancelar</button>
+            <div class="d-flex gap-2">
+                <button type="submit" id="CrearPlan" class="btn btn-info w-100 fw-bold">Enviar</button>
+                <button type="button" id="cerrarForm" class="btn btn-light w-100">Cancelar</button>
+            </div>
         </form>
     </dialog>
-    
 
     <script type="module" src="app.js"></script>
 </body>
