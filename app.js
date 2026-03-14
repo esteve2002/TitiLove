@@ -245,23 +245,67 @@ async function cargarPlanes() {
     });
 }
 
+//FUNCION PARA CREAR PLAN E ENVIAR CORREU
+
 function configurarModalPrincipal() {
     const modal = document.getElementById('modalForm');
     const form = document.getElementById('formPlan');
+
+    // Abrir y cerrar modal
     document.getElementById('btAbrirModalCrearPlan')?.addEventListener('click', () => modal.showModal());
     document.getElementById('cerrarForm')?.addEventListener('click', () => modal.close());
+
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await addDoc(collection(db, "Planes"), {
-            Nombre: form.NombrePlan.value,
-            FechaFinal: form.FechaPlan.value,
-            GastoMax: Number(form.GastoMaxPlan.value),
-            ObjetivoDinero: Number(form.DineroNecesario.value),
-            PresupuestoPlan: Number(form.PresupuestoPlan.value),
-            fechaCreacion: new Date()
-        });
-        modal.close();
-        form.reset();
-        cargarPlanes();
+
+        // Extraemos los valores para usarlos tanto en Firebase como en el Email
+        const nombrePlan = form.NombrePlan.value;
+        const presupuesto = form.PresupuestoPlan.value;
+        const fechaFinal = form.FechaPlan.value;
+
+        try {
+            // 1. Guardar en Firebase
+            await addDoc(collection(db, "Planes"), {
+                Nombre: nombrePlan,
+                FechaFinal: fechaFinal,
+                GastoMax: Number(form.GastoMaxPlan.value),
+                ObjetivoDinero: Number(form.DineroNecesario.value),
+                PresupuestoPlan: Number(presupuesto),
+                fechaCreacion: new Date()
+            });
+
+            // 2. Enviar Notificación por EmailJS
+            // SUSTITUYE ESTOS DOS IDS POR LOS TUYOS DE LA WEB DE EMAILJS
+            const serviceID = 'service_lt35sn2'; 
+            const templateID = 'template_2u3ervl'; 
+
+            const templateParams = {
+                nombre_plan: nombrePlan,
+                presupuesto_total: presupuesto,
+                fecha_limite: fechaFinal,
+                // Si quieres que el correo llegue a una dirección específica fija:
+                to_email: 'ribaescobaresteve@gmail.com' 
+            };
+
+            // Enviamos el correo (no usamos await aquí para no bloquear la UI si tarda)
+            emailjs.send(serviceID, templateID, templateParams)
+                .then(() => {
+                    console.log("¡Email enviado con éxito!");
+                })
+                .catch((error) => {
+                    console.error("Error al enviar email:", error);
+                });
+
+            // 3. Limpiar interfaz
+            modal.close();
+            form.reset();
+            cargarPlanes();
+            
+            alert(`¡Plan "${nombrePlan}" creado correctamente! Se ha enviado una notificación.`);
+
+        } catch (error) {
+            console.error("Error en el proceso:", error);
+            alert("Hubo un fallo al crear el plan.");
+        }
     });
 }
