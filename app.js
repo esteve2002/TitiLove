@@ -3,9 +3,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 import { db } from "./firebase.js";
 
-// --- VARIABLES Y FUNCIONES GLOBALES ---
+// --- VARIABLES GLOBALES ---
 let planesSeleccionados = [];
+let miGrafico = null;
 
+// --- NAVEGACIÓN Y GESTIÓN DE PLANES ---
 window.entrarAlPlan = function(id) {
     if (id) {
         localStorage.setItem("id_plan_actual", id);
@@ -34,61 +36,62 @@ window.eliminarPlanesSeleccionados = async function() {
             }
             alert("Planes eliminados con éxito");
             planesSeleccionados = [];
-            const btnBatch = document.getElementById("btnEliminarVarios");
-            if (btnBatch) btnBatch.style.display = "none";
             cargarPlanes(); 
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-        }
+        } catch (error) { console.error(error); }
     }
 };
 
-// --- LÓGICA DE CARGA SEGÚN PÁGINA ---
+// --- LÓGICA DE CARGA ---
 document.addEventListener("DOMContentLoaded", async function() {
-    if (window.location.pathname.includes("plan.html")) {
-        const idPlan = localStorage.getItem("id_plan_actual");
-        if (idPlan) {
-            await obtenerDatosDelPlan(idPlan);
-            await cargarGastosDelPlan(idPlan);
-            await cargarAhorrosDelPlan(idPlan);
-            configurarModalYFormularioNuevoGasto(idPlan);
-            configurarModalYFormularioNuevoAhorro(idPlan);
+    const idPlan = localStorage.getItem("id_plan_actual");
+
+    if (window.location.pathname.includes("plan.html") && idPlan) {
+        // Carga inicial de datos
+        await obtenerDatosDelPlan(idPlan);
+        await cargarGastosDelPlan(idPlan);
+        await cargarAhorrosDelPlan(idPlan);
+        await cargarDesplegableCategorias();
+
+        // Configurar formularios
+        configurarModalYFormularioNuevoGasto(idPlan);
+        configurarModalYFormularioNuevoAhorro(idPlan);
+
+        // BOTÓN VER INFO - Esta es la clave
+        const btnVerInfo = document.getElementById("verInfoPlan");
+        if (btnVerInfo) {
+            btnVerInfo.addEventListener("click", () => {
+                mostrarGraficaGastos(idPlan);
+            });
         }
-    } else {
+    } else if (!window.location.pathname.includes("plan.html")) {
         cargarPlanes();
         configurarModalPrincipal();
     }
 });
 
-// --- FUNCIONES DE DETALLE ---
+// --- FUNCIONES DE FIREBASE ---
 
 async function obtenerDatosDelPlan(id) {
     try {
-        const docRef = doc(db, "Planes", id);
-        const docSnap = await getDoc(docRef);
+        const docSnap = await getDoc(doc(db, "Planes", id));
         if (docSnap.exists()) {
             const datos = docSnap.data();
-            const titulo = document.getElementById("tituloPlan");
-            if (titulo) titulo.innerText = "Viendo el Plan: " + (datos.Nombre || "Sin nombre");
+            document.getElementById("tituloPlan").innerText = "Plan: " + (datos.Nombre || "Sin nombre");
         }
-    } catch (error) { console.error("Error al obtener el plan:", error); }
+    } catch (error) { console.error(error); }
 }
 
 async function cargarGastosDelPlan(idPlan) {
     const tablaBody = document.querySelector("#tablaGastosPorPlan tbody");
     if (!tablaBody) return;
-    tablaBody.innerHTML = ""; 
     try {
         const q = query(collection(db, "Gastos"), where("IdPlan", "==", idPlan));
         const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-            tablaBody.innerHTML = `<tr><td colspan="3">No hay gastos.</td></tr>`;
-            return;
-        }
+        tablaBody.innerHTML = snapshot.empty ? `<tr><td colspan="3">No hay gastos.</td></tr>` : "";
         snapshot.forEach(docSnap => {
-            const gasto = docSnap.data();
+            const g = docSnap.data();
             const fila = document.createElement("tr");
-            fila.innerHTML = `<td>${gasto.NombreGasto}</td><td>${gasto.TipoGasto}</td><td>${gasto.GastoNumerico} €</td>`;
+            fila.innerHTML = `<td>${g.NombreGasto}</td><td>${g.TipoGasto}</td><td>${g.GastoNumerico} €</td>`;
             tablaBody.appendChild(fila);
         });
     } catch (e) { console.error(e); }
@@ -97,113 +100,149 @@ async function cargarGastosDelPlan(idPlan) {
 async function cargarAhorrosDelPlan(idPlan) {
     const tablaBody = document.querySelector("#tablaAhorrosPorPlan tbody");
     if (!tablaBody) return;
-    tablaBody.innerHTML = ""; 
     try {
         const q = query(collection(db, "Ahorros"), where("IdPlan", "==", idPlan));
         const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-            tablaBody.innerHTML = `<tr><td colspan="3">No hay ahorros.</td></tr>`;
-            return;
-        }
+        tablaBody.innerHTML = snapshot.empty ? `<tr><td colspan="3">No hay ahorros.</td></tr>` : "";
         snapshot.forEach(docSnap => {
-            const ahorro = docSnap.data();
+            const a = docSnap.data();
             const fila = document.createElement("tr");
-            fila.innerHTML = `<td>${ahorro.Apunte}</td><td>${ahorro.Dinero_ahorrado} €</td><td>${ahorro.Fecha_creacion}</td>`;
+            fila.innerHTML = `<td>${a.Apunte}</td><td>${a.Dinero_ahorrado} €</td><td>${a.Fecha_creacion}</td>`;
             tablaBody.appendChild(fila);
         });
     } catch (e) { console.error(e); }
 }
 
-// --- CONFIGURACIÓN DE MODALES (GASTOS Y AHORROS) ---
+async function cargarDesplegableCategorias() {
+    const select = document.getElementById("selectTipoGasto");
+    if (!select) return;
+    try {
+        // REVISA AQUÍ: Si en tu Firebase se llama "TiposGastos" o "TiposGASTOS"
+        const snapshot = await getDocs(collection(db, "TiposGastos"));
+        select.innerHTML = '<option value="" disabled selected>Selecciona una categoría...</option>';
+        snapshot.forEach(docSnap => {
+            const nombre = docSnap.data().NombreTipoGasto;
+            if (nombre) {
+                const opt = new Option(nombre, nombre);
+                select.add(opt);
+            }
+        });
+    } catch (e) { console.error("Error categorías:", e); }
+}
+
+// --- GRÁFICA ---
+
+async function mostrarGraficaGastos(idPlan) {
+    const modalElement = document.getElementById('modalGrafica');
+    const canvas = document.getElementById('graficoGastos');
+    const bsModal = new bootstrap.Modal(modalElement);
+    
+    try {
+        const q = query(collection(db, "Gastos"), where("IdPlan", "==", idPlan));
+        const snapshot = await getDocs(q);
+        const agrupados = {};
+        let total = 0;
+
+        snapshot.forEach(docSnap => {
+            const g = docSnap.data();
+            const cat = g.TipoGasto || "Otros";
+            const imp = Number(g.GastoNumerico) || 0;
+            agrupados[cat] = (agrupados[cat] || 0) + imp;
+            total += imp;
+        });
+
+        if (total === 0) return alert("Sin gastos registrados.");
+
+        bsModal.show();
+
+        // Esperar a que el modal se muestre para que Chart.js tome el tamaño correcto
+        modalElement.addEventListener('shown.bs.modal', () => {
+            if (miGrafico) miGrafico.destroy();
+            miGrafico = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(agrupados),
+                    datasets: [{
+                        data: Object.values(agrupados),
+                        backgroundColor: ['#0dcaf0', '#20c997', '#ffc107', '#fd7e14', '#dc3545']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            document.getElementById('resumenTexto').innerHTML = `Total Gastado: <b>${total.toFixed(2)} €</b>`;
+        }, { once: true });
+
+    } catch (e) { console.error(e); }
+}
+
+// --- CONFIG MODALES FORMULARIOS ---
 
 function configurarModalYFormularioNuevoGasto(idPlan) {
-    const btn = document.getElementById('btAbrirModalCrearGasto');
     const modal = document.getElementById('modalFormGasto');
-    const cerrar = document.getElementById('cerrarFormGasto');
     const form = document.getElementById('formGasto');
+    document.getElementById('btAbrirModalCrearGasto').onclick = () => modal.showModal();
+    document.getElementById('cerrarFormGasto').onclick = () => modal.close();
 
-    if (btn) btn.onclick = () => modal.showModal();
-    if (cerrar) cerrar.onclick = () => modal.close();
-
-    if (form) {
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const valor = Number(form.GastoNumerico.value);
-            const nuevoGasto = {
-                NombreGasto: form.NombreGasto.value,
-                TipoGasto: form.TipoGasto.value,
-                GastoNumerico: valor,
-                IdPlan: idPlan,
-                fechaCreacion: new Date()
-            };
-            try {
-                await addDoc(collection(db, "Gastos"), nuevoGasto);
-                await updateDoc(doc(db, "Planes", idPlan), {
-                    PresupuestoPlan: increment(-valor)
-                });
-                modal.close();
-                form.reset();
-                alert("¡Gasto registrado!");
-                obtenerDatosDelPlan(idPlan);
-                cargarGastosDelPlan(idPlan);
-            } catch (err) { console.error(err); }
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const valor = Number(form.GastoNumerico.value);
+        const nuevo = {
+            NombreGasto: form.NombreGasto.value,
+            TipoGasto: form.TipoGasto.value,
+            GastoNumerico: valor,
+            IdPlan: idPlan,
+            fechaCreacion: new Date()
         };
-    }
+        await addDoc(collection(db, "Gastos"), nuevo);
+        await updateDoc(doc(db, "Planes", idPlan), { PresupuestoPlan: increment(-valor) });
+        modal.close();
+        form.reset();
+        cargarGastosDelPlan(idPlan);
+        obtenerDatosDelPlan(idPlan);
+    };
 }
 
 function configurarModalYFormularioNuevoAhorro(idPlan) {
-    const btn = document.getElementById('btAbrirModalCrearAhorro');
     const modal = document.getElementById('modalFormAhorro');
-    const cerrar = document.getElementById('cerrarFormAhorro');
     const form = document.getElementById('formAhorro');
+    document.getElementById('btAbrirModalCrearAhorro').onclick = () => modal.showModal();
+    document.getElementById('cerrarFormAhorro').onclick = () => modal.close();
 
-    if (btn) btn.onclick = () => modal.showModal();
-    if (cerrar) cerrar.onclick = () => modal.close();
-
-    if (form) {
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const nuevoAhorro = {
-                Apunte: form.Apunte.value,
-                Dinero_ahorrado: Number(form.Dinero_ahorrado.value),
-                Fecha_creacion: form.Fecha_creacion.value,
-                IdPlan: idPlan
-            };
-            try {
-                await addDoc(collection(db, "Ahorros"), nuevoAhorro);
-                modal.close();
-                form.reset();
-                alert("¡Ahorro guardado!");
-                cargarAhorrosDelPlan(idPlan);
-            } catch (err) { console.error(err); }
-        };
-    }
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "Ahorros"), {
+            Apunte: form.Apunte.value,
+            Dinero_ahorrado: Number(form.Dinero_ahorrado.value),
+            Fecha_creacion: form.Fecha_creacion.value,
+            IdPlan: idPlan
+        });
+        modal.close();
+        form.reset();
+        cargarAhorrosDelPlan(idPlan);
+    };
 }
 
-// --- FUNCIONES PÁGINA PRINCIPAL ---
-
+// --- PÁGINA PRINCIPAL (INDEX) ---
 async function cargarPlanes() {
     const tablaBody = document.getElementById("cuerpoTabla");
     if (!tablaBody) return;
-    try {
-        const snapshot = await getDocs(collection(db, "Planes"));
-        tablaBody.innerHTML = ""; 
-        snapshot.forEach(docSnap => {
-            const plan = docSnap.data();
-            const id = docSnap.id; 
-            const fila = document.createElement("tr");
-            fila.innerHTML = `
-                <td>${plan.Nombre || ""}</td>
-                <td>${plan.ObjetivoDinero || 0} €</td>
-                <td>${plan.GastoMax || 0} €</td>
-                <td>${plan.FechaFinal || "-"}</td>
-                <td>${plan.PresupuestoPlan || 0} €</td>
-                <td><button class="btn btn-info btn-sm" onclick="entrarAlPlan('${id}')">ENTRAR</button></td>
-                <td><input type="checkbox" onchange="gestionarSeleccionPlan('${id}', this)"></td>
-            `;
-            tablaBody.appendChild(fila);
-        });
-    } catch (e) { console.error(e); }
+    const snapshot = await getDocs(collection(db, "Planes"));
+    tablaBody.innerHTML = ""; 
+    snapshot.forEach(docSnap => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${p.Nombre || ""}</td>
+            <td>${p.ObjetivoDinero || 0} €</td>
+            <td>${p.GastoMax || 0} €</td>
+            <td>${p.FechaFinal || "-"}</td>
+            <td>${p.PresupuestoPlan || 0} €</td>
+            <td><button class="btn btn-info btn-sm" onclick="entrarAlPlan('${id}')">ENTRAR</button></td>
+            <td><input type="checkbox" onchange="gestionarSeleccionPlan('${id}', this)"></td>
+        `;
+        tablaBody.appendChild(fila);
+    });
 }
 
 function configurarModalPrincipal() {
@@ -213,15 +252,14 @@ function configurarModalPrincipal() {
     document.getElementById('cerrarForm')?.addEventListener('click', () => modal.close());
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nuevo = {
+        await addDoc(collection(db, "Planes"), {
             Nombre: form.NombrePlan.value,
             FechaFinal: form.FechaPlan.value,
             GastoMax: Number(form.GastoMaxPlan.value),
             ObjetivoDinero: Number(form.DineroNecesario.value),
             PresupuestoPlan: Number(form.PresupuestoPlan.value),
             fechaCreacion: new Date()
-        };
-        await addDoc(collection(db, "Planes"), nuevo);
+        });
         modal.close();
         form.reset();
         cargarPlanes();
