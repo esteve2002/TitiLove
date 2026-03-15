@@ -238,7 +238,7 @@ async function cargarPlanes() {
             <td>${p.GastoMax || 0} €</td>
             <td>${p.FechaFinal || "-"}</td>
             <td>${p.PresupuestoPlan || 0} €</td>
-            <td><button class="btn btn-info btn-sm" onclick="entrarAlPlan('${id}')">ENTRAR</button></td>
+            <td><button class="btn btn-danger btn-sm" onclick="entrarAlPlan('${id}')">ENTRAR</button></td>
             <td><input type="checkbox" onchange="gestionarSeleccionPlan('${id}', this)"></td>
         `;
         tablaBody.appendChild(fila);
