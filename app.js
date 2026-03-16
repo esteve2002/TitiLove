@@ -284,7 +284,7 @@ function configurarModalPrincipal() {
                 presupuesto_total: presupuesto,
                 fecha_limite: fechaFinal,
                 // Si quieres que el correo llegue a una dirección específica fija:
-                to_email: 'ribaescobaresteve@gmail.com' 
+                to_email: 'zaiirareyyes7@gmail.com' 
             };
 
             // Enviamos el correo (no usamos await aquí para no bloquear la UI si tarda)
